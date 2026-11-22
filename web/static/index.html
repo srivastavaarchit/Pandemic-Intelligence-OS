@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pandemic Intelligence OS · COVID-19, country by country</title>
+  <meta name="description" content="Explore 1,000+ days of COVID-19 data from nearly 200 countries: an interactive 3D globe, country comparisons, socioeconomic factors and an epidemic simulator.">
+  <meta name="theme-color" content="#f6f7f9">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='8' fill='%2315181f'/%3E%3Ccircle cx='16' cy='16' r='13.5' fill='none' stroke='%23ff4a2b' stroke-width='3.4' stroke-linecap='round' stroke-dasharray='0 7.07'/%3E%3C/svg%3E">
+  <link rel="preload" href="/static/fonts/bricolage-grotesque-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/static/fonts/manrope-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script>document.documentElement.classList.add('js');addEventListener('load',function(){setTimeout(function(){var h=document.getElementById('hero');h&&h.classList.add('is-in')},2500)});</script>
+  <script type="importmap">
+    { "imports": { "three": "/static/vendor/three.module.min.js" } }
+  </script>
+  <script src="/static/vendor/chart.umd.js" defer></script>
+  <script type="module" src="/static/js/main.js"></script>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34" /> <circle cx="11" cy="11" r="8" /></symbol>
+<symbol id="i-volume-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" /> <path d="M16 9a5 5 0 0 1 0 6" /> <path d="M19.364 18.364a9 9 0 0 0 0-12.728" /></symbol>
+<symbol id="i-volume-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4.702a.7.7 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.7.7 0 0 0 11 19.298z" /> <path d="m16.5 14.5 5-5" /> <path d="m16.5 9.5 5 5" /></symbol>
+<symbol id="i-book-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16" /> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /> <path d="m12 5 7 7-7 7" /></symbol>
+<symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10" /> <path d="M7 17 17 7" /></symbol>
+<symbol id="i-circle-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M9 9.5a3 2.5 0 016 0c0 2-2 2-3 3.5" /> <path d="M12 17h.01" /></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /> <path d="M2 12h20" /></symbol>
+<symbol id="i-chart-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="m19 9-5 5-4-4-3 3" /></symbol>
+<symbol id="i-chart-area" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="M7 11.207a.5.5 0 0 1 .146-.353l2-2a.5.5 0 0 1 .708 0l3.292 3.292a.5.5 0 0 0 .708 0l4.292-4.292a.5.5 0 0 1 .854.353V16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" /></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" /> <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" /> <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" /></symbol>
+<symbol id="i-sliders-horizontal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5H3" /> <path d="M12 19H3" /> <path d="M14 3v4" /> <path d="M16 17v4" /> <path d="M21 12h-9" /> <path d="M21 19h-5" /> <path d="M21 5h-7" /> <path d="M8 10v4" /> <path d="M8 12H3" /></symbol>
+<symbol id="i-table-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18" /> <path d="M9 3v18" /> <rect x="3" y="3" width="18" height="18" rx="2" /></symbol>
+<symbol id="i-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /> <path d="m3.3 7 8.7 5 8.7-5" /> <path d="M12 22V12" /></symbol>
+<symbol id="i-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /> <path d="M20 2v4" /> <path d="M22 4h-4" /> <circle cx="4" cy="20" r="2" /></symbol>
+<symbol id="i-rotate-3d" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15.194 13.707 3.814 1.86-1.86 3.814" /> <path d="M16.47214 7.52786 A 5 10 0 1 0 13 21.79796" /> <path d="M21.79796 11 A 10 5 0 1 0 19 15.57071" /></symbol>
+<symbol id="i-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
+<symbol id="i-palette" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /> <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16" /> <path d="M4 12h16" /> <path d="M4 19h16" /></symbol>
+<symbol id="i-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol>
+<symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="M12 16v-4" /> <path d="M12 8h.01" /></symbol>
+<symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></symbol>
+<symbol id="i-trending-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6" /> <path d="m22 7-8.5 8.5-5-5L2 17" /></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol>
+<symbol id="i-chart-column" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="M18 17V9" /> <path d="M13 17V5" /> <path d="M8 17v-3" /></symbol>
+<symbol id="i-chart-scatter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /> <circle cx="18.5" cy="5.5" r=".5" fill="currentColor" /> <circle cx="11.5" cy="11.5" r=".5" fill="currentColor" /> <circle cx="7.5" cy="16.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="14.5" r=".5" fill="currentColor" /> <path d="M3 3v16a2 2 0 0 0 2 2h16" /></symbol>
+<symbol id="i-git-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3" /> <circle cx="6" cy="6" r="3" /> <path d="M13 6h3a2 2 0 0 1 2 2v7" /> <path d="M11 18H8a2 2 0 0 1-2-2V9" /></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" /></symbol>
+<symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" /></symbol>
+<symbol id="i-arrow-up-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4" /> <path d="M17 20V4" /> <path d="m3 8 4-4 4 4" /> <path d="M7 4v16" /></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /> <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" /> <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" /> <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /> <path d="M9 18h6" /> <path d="M10 22h4" /></symbol>
+<symbol id="i-heart-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" /> <path d="M3.22 13H9.5l.5-1 2 4.5 2-7 1.5 3.5h5.27" /></symbol>
+<symbol id="i-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12.8 19.6A2 2 0 1 0 14 16H2" /> <path d="M17.5 8a2.5 2.5 0 1 1 2 4H2" /> <path d="M9.8 4.4A2 2 0 1 1 11 8H2" /></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /> <path d="M21 3v5h-5" /> <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /> <path d="M8 16H3v5" /></symbol>
+<symbol id="i-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol>
+<symbol id="i-rotate-ccw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /> <path d="m16 9-5.5 5.5L8 12" /></symbol>
+<symbol id="i-keyboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h.01" /> <path d="M12 12h.01" /> <path d="M14 8h.01" /> <path d="M16 12h.01" /> <path d="M18 8h.01" /> <path d="M6 8h.01" /> <path d="M7 16h10" /> <path d="M8 12h.01" /> <rect width="20" height="16" x="2" y="4" rx="2" /></symbol>
+<symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+</defs></svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============ Floating navigation ============ -->
+<header class="nav" id="nav">
+  <a class="brand" href="#overview" aria-label="Pandemic Intelligence OS, home">
+    <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="8" fill="currentColor"/>
+      <circle cx="16" cy="16" r="10.6" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="1.6 4.06" stroke-dashoffset="0.8"/>
+      <circle cx="16" cy="16" r="13.5" fill="none" stroke="#ff4a2b" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0 7.068"/>
+    </svg>
+    <span class="brand__name">Pandemic Intelligence<span class="brand__os">OS</span></span>
+    <span class="tag hide-sm" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(21,24,31,0.06);color:var(--ink-2);margin-left:8px;" title="Dataset: Johns Hopkins CSSE & World Bank Archive">2020–2023 Archive</span>
+  </a>
+
+  <nav class="nav__links" id="nav-links" aria-label="Primary">
+    <span class="nav__pill" id="nav-pill" aria-hidden="true"></span>
+    <a class="nav__link" href="#overview" data-view="overview">Overview</a>
+    <a class="nav__link" href="#map" data-view="map">Map</a>
+    <a class="nav__link" href="#compare" data-view="compare">Compare</a>
+    <a class="nav__link" href="#factors" data-view="factors">Factors</a>
+    <a class="nav__link" href="#simulator" data-view="simulator">Simulator</a>
+    <a class="nav__link" href="#countries" data-view="countries">Countries</a>
+    <a class="nav__link" href="#lab" data-view="lab">Virus lab</a>
+  </nav>
+
+  <div class="nav__right">
+    <div class="search search--nav" data-picker="global">
+      <label class="search__field">
+        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <input class="search__input" id="nav-search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nav-search-list" autocomplete="off" spellcheck="false" placeholder="Jump to a country" aria-label="Search for a country">
+        <kbd aria-hidden="true">/</kbd>
+      </label>
+      <div class="search__list" id="nav-search-list" role="listbox" aria-label="Countries" hidden></div>
+    </div>
+    <button class="icon-btn" id="btn-sound" type="button" aria-pressed="false" aria-label="Interface sounds: off" title="Interface sounds">
+      <svg class="icon" aria-hidden="true"><use href="#i-volume-x"/></svg>
+    </button>
+    <a class="icon-btn" href="/docs" target="_blank" rel="noopener" aria-label="API documentation (opens in a new tab)" title="API documentation">
+      <svg class="icon" aria-hidden="true"><use href="#i-book-open"/></svg>
+    </a>
+    <button class="icon-btn nav__menu" id="btn-menu" type="button" aria-label="Open menu" aria-haspopup="dialog">
+      <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- Mobile / tablet menu -->
+<dialog class="sheet" id="menu" aria-label="Menu">
+  <div class="sheet__top">
+    <a class="brand" href="#overview" data-close-menu>
+      <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="8" fill="currentColor"/><circle cx="16" cy="16" r="10.6" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="1.6 4.06" stroke-dashoffset="0.8"/><circle cx="16" cy="16" r="13.5" fill="none" stroke="#ff4a2b" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0 7.068"/></svg>
+      <span class="brand__name">Pandemic Intelligence</span>
+    </a>
+    <button class="icon-btn" type="button" data-close-menu aria-label="Close menu"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="sheet__search">
+    <div class="search" data-picker="sheet">
+      <label class="search__field">
+        <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <input class="search__input" id="sheet-search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sheet-search-list" autocomplete="off" spellcheck="false" placeholder="Jump to a country" aria-label="Search for a country">
+      </label>
+      <div class="search__list" id="sheet-search-list" role="listbox" aria-label="Countries" hidden></div>
+    </div>
+  </div>
+  <nav class="sheet__nav" aria-label="Primary">
+    <a class="sheet__link" href="#overview" data-view="overview" data-close-menu><strong>Overview</strong><span>Headline numbers and global waves</span></a>
+    <a class="sheet__link" href="#map" data-view="map" data-close-menu><strong>Map</strong><span>A 3D globe of every outbreak</span></a>
+    <a class="sheet__link" href="#compare" data-view="compare" data-close-menu><strong>Compare</strong><span>Line up countries side by side</span></a>
+    <a class="sheet__link" href="#factors" data-view="factors" data-close-menu><strong>Factors</strong><span>How wealth, health and geography relate</span></a>
+    <a class="sheet__link" href="#simulator" data-view="simulator" data-close-menu><strong>Simulator</strong><span>Test lockdowns on a model epidemic</span></a>
+    <a class="sheet__link" href="#countries" data-view="countries" data-close-menu><strong>Countries</strong><span>A sortable table of every country</span></a>
+    <a class="sheet__link" href="#lab" data-view="lab" data-close-menu><strong>Virus lab</strong><span>Explore a 3D coronavirus</span></a>
+  </nav>
+  <div class="sheet__foot">
+    <a href="/docs" target="_blank" rel="noopener">API documentation</a>
+    <span>JHU CSSE · World Bank</span>
+  </div>
+</dialog>
+
+<main id="main">
+
+  <!-- ============ OVERVIEW ============ -->
+  <section class="view" data-view="overview" id="view-overview" aria-labelledby="hero-title">
+    <div class="hero" id="hero">
+      <div class="wrap hero__grid">
+        <div class="hero__copy">
+          <h1 class="display" id="hero-title" tabindex="-1" aria-label="The COVID-19 pandemic, country by country.">
+            <span class="w" style="--i:0" aria-hidden="true"><span>The</span></span>
+            <span class="w" style="--i:1" aria-hidden="true"><span>COVID-19</span></span>
+            <span class="w" style="--i:2" aria-hidden="true"><span>pandemic,</span></span>
+            <span class="w" style="--i:3" aria-hidden="true"><span>country</span></span>
+            <span class="w" style="--i:4" aria-hidden="true"><span>by</span></span>
+            <span class="w" style="--i:5" aria-hidden="true"><span>country.</span></span>
+          </h1>
+          <p class="lede" data-hero style="--i:0">Explore the confirmed cases and deaths every country reported, compare how each outbreak unfolded, and test how lockdowns change the shape of an epidemic.</p>
+          <div class="hero__actions" data-hero style="--i:1">
+            <a class="btn btn--primary" href="#map" data-magnetic><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>Explore the map</a>
+            <a class="btn btn--ghost" href="#simulator" data-magnetic><svg class="icon" aria-hidden="true"><use href="#i-sliders-horizontal"/></svg>Run a simulation</a>
+            <button class="btn btn--soft" id="btn-live-sync" type="button" style="display:inline-flex;align-items:center;gap:8px;" title="Fetch live real-time figures from WHO / Disease.sh registry">
+              <span id="live-dot" style="background:#10b981;box-shadow:0 0 8px #10b981;border-radius:50%;width:8px;height:8px;display:inline-block;"></span>
+              <span id="live-sync-text">Live 2026 Sync</span>
+            </button>
+          </div>
+          <p class="hero__meta" data-hero style="--i:2"><span class="status-dot" data-state="idle" id="hero-dot"></span><span id="hero-meta">Johns Hopkins CSSE data</span></p>
+        </div>
+
+        <div class="hero__stage" data-hero style="--i:1">
+          <div class="virion" id="hero-virion" role="img" aria-label="Interactive 3D model of a coronavirus particle. Drag to rotate."></div>
+          <div class="stage-chip">
+            <button class="btn btn--toggle" id="hero-mask-btn" type="button" aria-pressed="false">
+              <svg class="icon" aria-hidden="true"><use href="#i-shield-check"/></svg><span>Put on a mask</span>
+            </button>
+            <span class="stage-chip__hint">Drag to turn</span>
+          </div>
+        </div>
+      </div>
+
+      <figure class="hero__curve" id="hero-curve">
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="none" role="img" aria-label="Global new confirmed cases per day, seven-day average, from January 2020 to March 2023. The tallest peak is the Omicron wave in January 2022.">
+          <defs>
+            <linearGradient id="curveFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff4a2b" stop-opacity="0.26"/><stop offset="1" stop-color="#ff4a2b" stop-opacity="0"/></linearGradient>
+            <clipPath id="curveReveal"><rect id="curve-reveal-rect" x="0" y="-20" width="0" height="340"/></clipPath>
+          </defs>
+          <line class="curve__grid" x1="0" x2="1000" y1="96" y2="96"/>
+          <line class="curve__grid" x1="0" x2="1000" y1="148" y2="148"/>
+          <line class="curve__grid" x1="0" x2="1000" y1="207" y2="207"/>
+          <line class="curve__grid" x1="0" x2="1000" y1="266" y2="266"/>
+          <g clip-path="url(#curveReveal)">
+            <path class="curve__area" id="curve-area" fill="url(#curveFill)" d=""/>
+            <path class="curve__line" id="curve-line" d=""/>
+          </g>
+        </svg>
+        <div class="curve__annots" id="curve-annots"></div>
+        <figcaption class="curve__axis" aria-hidden="true"><span id="curve-start">Jan 2020</span><span>New cases per day worldwide</span><span id="curve-end">Mar 2023</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="ledger" role="region" aria-label="Headline numbers">
+      <dl class="ledger__grid">
+        <div class="stat" data-reveal style="--i:0">
+          <dt class="stat__label"><i style="background:var(--signal)"></i>Confirmed cases</dt>
+          <dd class="stat__num skeleton" id="kpi-total-confirmed">0.0M</dd>
+          <dd class="stat__note" id="kpi-cases-note">Reported by every country and territory in the dataset.</dd>
+        </div>
+        <div class="stat" data-reveal style="--i:1">
+          <dt class="stat__label"><i style="background:var(--ink)"></i>Deaths</dt>
+          <dd class="stat__num skeleton" id="kpi-total-deaths">0.00M</dd>
+          <dd class="stat__note">Deaths reported alongside confirmed cases.</dd>
+        </div>
+        <div class="stat" data-reveal style="--i:2">
+          <dt class="stat__label">Case fatality rate</dt>
+          <dd class="stat__num skeleton" id="kpi-mortality-rate">0.00%</dd>
+          <dd class="stat__note">Deaths per 100 confirmed cases. Many infections were never tested, so the true rate was lower.</dd>
+        </div>
+        <div class="stat" data-reveal style="--i:3">
+          <dt class="stat__label">Busiest single day</dt>
+          <dd class="stat__num skeleton" id="kpi-peak-date">00 Mon 0000</dd>
+          <dd class="stat__note" id="kpi-peak-cases">New cases reported that day.</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="wrap">
+      <section class="section" aria-labelledby="waves-title">
+        <div class="panel" id="panel-timeline" data-reveal>
+          <div class="panel__head">
+            <div>
+              <h2 class="panel__title" id="waves-title">Waves of infection</h2>
+              <p class="panel__desc" id="waves-desc">New confirmed cases per day around the world, with a 7-day average.</p>
+            </div>
+            <div class="panel__tools">
+              <div class="seg" role="radiogroup" aria-label="Chart type" id="timeline-mode">
+                <button type="button" role="radio" aria-checked="true" data-value="daily">Daily</button>
+                <button type="button" role="radio" aria-checked="false" data-value="cumulative">Cumulative</button>
+              </div>
+              <div class="seg" role="radiogroup" aria-label="Vertical scale" id="timeline-scale">
+                <button type="button" role="radio" aria-checked="true" data-value="linear">Linear</button>
+                <button type="button" role="radio" aria-checked="false" data-value="log">Log</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="globalTimelineChart" role="img" aria-label="Global new cases per day"></canvas></div>
+          <div class="loading-veil" hidden><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+        </div>
+      </section>
+
+      <section class="section" aria-label="Where cases were reported">
+        <div class="split">
+          <div class="panel" id="panel-rank" data-reveal>
+            <div class="panel__head">
+              <div>
+                <h2 class="panel__title">Hardest-hit countries</h2>
+                <p class="panel__desc" id="rank-desc">Select a country for its full history.</p>
+              </div>
+              <div class="seg" role="radiogroup" aria-label="Ranking" id="rank-mode">
+                <button type="button" role="radio" aria-checked="true" data-value="cases">Most cases</button>
+                <button type="button" role="radio" aria-checked="false" data-value="cfr">Highest fatality</button>
+              </div>
+            </div>
+            <div class="rank" id="rank-list"></div>
+          </div>
+
+          <div class="panel" id="panel-cont" data-reveal style="--i:1">
+            <div class="panel__head">
+              <div>
+                <h2 class="panel__title">Cases by continent</h2>
+                <p class="panel__desc">Share of all confirmed cases, and each continent’s fatality rate.</p>
+              </div>
+            </div>
+            <div class="strip" id="cont-strip" role="img" aria-label="Proportional bar of cases by continent"></div>
+            <div class="conts" id="cont-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="next-title">
+        <div class="section__head" data-reveal>
+          <h2 class="section-title" id="next-title">Where to go next</h2>
+        </div>
+        <div class="next-list" data-reveal>
+          <a class="next" href="#map"><span class="next__ico"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span><span><strong>Map</strong><span>Spin a 3D globe and open any country.</span></span><span class="next__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></span></a>
+          <a class="next" href="#compare"><span class="next__ico"><svg class="icon" aria-hidden="true"><use href="#i-git-compare"/></svg></span><span><strong>Compare countries</strong><span>Line up waves, and see how fast each flattened its curve.</span></span><span class="next__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></span></a>
+          <a class="next" href="#simulator"><span class="next__ico"><svg class="icon" aria-hidden="true"><use href="#i-sliders-horizontal"/></svg></span><span><strong>Simulator</strong><span>Change R₀ and lockdown timing in a model epidemic.</span></span><span class="next__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></span></a>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section class="view" data-view="map" id="view-map" hidden aria-labelledby="title-map">
+    <div class="wrap">
+      <header class="view-head">
+        <h1 class="view-title focus-target" id="title-map" tabindex="-1">Map</h1>
+        <p class="lede">Every bubble is a country. Bigger bubbles mean more confirmed cases; darker ones mean a higher case fatality rate.</p>
+      </header>
+
+      <div class="globe-wrap">
+        <div class="globe" id="globe" role="application" aria-label="Interactive 3D globe. Drag to rotate, scroll or pinch to zoom, select a bubble for details.">
+          <div class="globe__legend" data-hide-on-state>
+            <strong>Case fatality rate</strong>
+            <div class="legend-row"><i style="--c:var(--cfr-low)"></i>Below 1.5%</div>
+            <div class="legend-row"><i style="--c:var(--cfr-mid)"></i>1.5% to 3%</div>
+            <div class="legend-row"><i style="--c:var(--cfr-high)"></i>Above 3%</div>
+            <p>Bubble area shows <span id="globe-size-label">total cases</span>.</p>
+          </div>
+          <div class="globe__tools" data-hide-on-state>
+            <div class="seg" role="radiogroup" aria-label="Bubble size" id="globe-metric">
+              <button type="button" role="radio" aria-checked="true" data-value="cases">Total cases</button>
+              <button type="button" role="radio" aria-checked="false" data-value="permil">Per million people</button>
+            </div>
+            <button class="btn btn--sm btn--soft" id="globe-rotate" type="button" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#i-rotate-3d"/></svg><span>Auto-rotate</span></button>
+            <button class="btn btn--sm btn--soft" id="globe-reset" type="button"><svg class="icon" aria-hidden="true"><use href="#i-rotate-ccw"/></svg><span>Reset view</span></button>
+          </div>
+          <div class="globe__hint" data-hide-on-state>Drag to rotate · Scroll to zoom</div>
+          <div class="gtip" id="globe-tip" role="status"></div>
+          <div class="loading-veil" id="globe-loading"><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+        </div>
+
+        <aside class="panel hotlist" aria-labelledby="hot-title">
+          <div class="panel__head">
+            <div>
+              <h2 class="panel__title" id="hot-title">Largest outbreaks</h2>
+              <p class="panel__desc" id="hot-desc">Select one to find it on the globe.</p>
+            </div>
+          </div>
+          <div id="hot-list"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section class="view" data-view="compare" id="view-compare" hidden aria-labelledby="title-compare">
+    <div class="wrap stack">
+      <header class="view-head">
+        <h1 class="view-title focus-target" id="title-compare" tabindex="-1">Compare countries</h1>
+        <p class="lede">Pick up to eight countries. The first chart shows when each wave hit; the second lines every outbreak up from the day it reached 100 cases, so you can see who flattened the curve fastest.</p>
+      </header>
+
+      <div class="panel">
+        <div class="pickerbar">
+          <div class="search" data-picker="compare">
+            <label class="search__field">
+              <svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>
+              <input class="search__input" id="compare-search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="compare-search-list" autocomplete="off" spellcheck="false" placeholder="Add a country" aria-label="Add a country to compare">
+            </label>
+            <div class="search__list search__list--left" id="compare-search-list" role="listbox" aria-label="Countries" hidden></div>
+          </div>
+          <div class="pills" id="compare-presets" role="group" aria-label="Quick selections"></div>
+        </div>
+        <div class="chips" id="compare-chips" style="margin-top:16px" aria-live="polite"></div>
+      </div>
+
+      <div class="panel" id="panel-compare">
+        <div class="panel__head">
+          <div>
+            <h2 class="panel__title">New cases per day</h2>
+            <p class="panel__desc">7-day average of newly confirmed cases. Hover to compare a single day.</p>
+          </div>
+        </div>
+        <div class="chart-box chart-box--tall"><canvas id="compareCountriesChart" role="img" aria-label="Daily new cases for the selected countries"></canvas></div>
+        <div class="loading-veil" hidden><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+      </div>
+
+      <div class="panel" id="panel-t0">
+        <div class="panel__head">
+          <div>
+            <h2 class="panel__title">Days since the 100th case</h2>
+            <p class="panel__desc">Day 0 is the day a country passed 100 confirmed cases. On a log scale, a flatter line means slower growth.</p>
+          </div>
+        </div>
+        <div class="chart-box chart-box--tall"><canvas id="t0Chart" role="img" aria-label="Cumulative cases since each country’s 100th case"></canvas></div>
+        <div class="loading-veil" hidden><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FACTORS ============ -->
+  <section class="view" data-view="factors" id="view-factors" hidden aria-labelledby="title-factors">
+    <div class="wrap stack">
+      <header class="view-head">
+        <h1 class="view-title focus-target" id="title-factors" tabindex="-1">Factors</h1>
+        <p class="lede">Do richer, older or more rural countries fare differently? Choose two measures from the World Bank and the case data, and see how they line up across countries with more than 5,000 cases.</p>
+      </header>
+
+      <div class="panel" id="panel-socio">
+        <div class="panel__head" style="margin-bottom:18px">
+          <div class="sentence">
+            <span>Show</span>
+            <select class="select" id="socio-y" aria-label="Outcome (vertical axis)">
+              <option value="Cases per mln">cases per million</option>
+              <option value="Dead per mln">deaths per million</option>
+              <option value="Mortality %">fatality rate</option>
+            </select>
+            <span>against</span>
+            <select class="select" id="socio-x" aria-label="Factor (horizontal axis)">
+              <option value="Rural population %">rural population share</option>
+              <option value="GDP per capita">GDP per capita</option>
+              <option value="GDP Healthcare %">health spending (% of GDP)</option>
+              <option value="Life expectancy">life expectancy</option>
+            </select>
+          </div>
+        </div>
+
+        <dl class="trio">
+          <div><dt>Correlation (r)</dt><dd id="socio-r">—</dd></div>
+          <div><dt>Variance explained (R²)</dt><dd id="socio-r2">—</dd></div>
+          <div><dt>Significance (p)</dt><dd id="socio-p">—</dd></div>
+        </dl>
+        <p class="verdict" id="socio-verdict" aria-live="polite"></p>
+        <div class="legend-pills" id="socio-legend" role="group" aria-label="Show or hide continents"></div>
+        <div class="chart-box chart-box--tall"><canvas id="socioeconomicScatterChart" role="img" aria-label="Scatter plot of the two selected measures across countries"></canvas></div>
+        <p class="note" style="margin-top:18px"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span>Correlation is not causation. These are country-level averages, so they say little about any one person. Yemen is excluded as an outlier.</span></p>
+        <div class="loading-veil" hidden><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SIMULATOR ============ -->
+  <section class="view" data-view="simulator" id="view-simulator" hidden aria-labelledby="title-simulator">
+    <div class="wrap stack">
+      <header class="view-head">
+        <h1 class="view-title focus-target" id="title-simulator" tabindex="-1">Simulator</h1>
+        <p class="lede">A classic SIR model for a town of 1,000,000 people. Make the virus more or less contagious, choose when people act, and watch the curve respond.</p>
+      </header>
+
+      <div class="sim">
+        <div class="panel sim__controls">
+          <div>
+            <h2 class="panel__title" style="margin-bottom:12px">Scenarios</h2>
+            <div class="presets" id="sir-presets" role="group" aria-label="Preset scenarios">
+              <button class="pill" type="button" data-preset="none" aria-pressed="false">No action</button>
+              <button class="pill" type="button" data-preset="early" aria-pressed="false">Act early</button>
+              <button class="pill" type="button" data-preset="late" aria-pressed="false">Act late</button>
+              <button class="pill" type="button" data-preset="strong" aria-pressed="false">Strict lockdown</button>
+            </div>
+          </div>
+          <div class="ctl">
+            <div class="ctl__row"><label for="sir-r0">Basic reproduction number, R<sub>0</sub></label><span class="ctl__val" id="sir-r0-val">2.5</span></div>
+            <input id="sir-r0" type="range" min="1" max="6" step="0.1" value="2.5">
+            <p>How many people one infected person infects in a fully susceptible population.</p>
+          </div>
+          <div class="ctl">
+            <div class="ctl__row"><label for="sir-infectious-days">Days infectious</label><span class="ctl__val" id="sir-infectious-days-val">10</span></div>
+            <input id="sir-infectious-days" type="range" min="3" max="21" step="1" value="10">
+            <p>How long a person can pass the virus on before recovering.</p>
+          </div>
+          <div class="ctl">
+            <div class="ctl__row"><label for="sir-lockdown-day">Intervention starts on day</label><span class="ctl__val" id="sir-lockdown-day-val">45</span></div>
+            <input id="sir-lockdown-day" type="range" min="10" max="120" step="5" value="45">
+            <p>The day masks, distancing or a lockdown begin.</p>
+          </div>
+          <div class="ctl">
+            <div class="ctl__row"><label for="sir-reduction">Transmission cut by</label><span class="ctl__val" id="sir-reduction-val">50%</span></div>
+            <input id="sir-reduction" type="range" min="0" max="90" step="5" value="50">
+            <p>How much the intervention reduces spread. 0% means nothing changes.</p>
+          </div>
+        </div>
+
+        <div class="panel" id="panel-sir">
+          <div class="panel__head" style="margin-bottom:12px">
+            <div>
+              <h2 class="panel__title">Susceptible, infected, recovered</h2>
+              <p class="panel__desc">Number of people in each group over 180 days.</p>
+            </div>
+          </div>
+          <div class="chart-legend" aria-hidden="true">
+            <span><i style="--c:var(--shield)"></i>Susceptible</span>
+            <span><i style="--c:var(--signal)"></i>Infected</span>
+            <span><i style="--c:var(--recover)"></i>Recovered</span>
+            <span><i class="dash" style="--c:#e67e22"></i>Hospital capacity</span>
+            <span><i class="dash" style="--c:var(--ink-4)"></i>Infected with no action</span>
+          </div>
+          <div class="chart-box chart-box--tall"><canvas id="sirSimulationChart" role="img" aria-label="Susceptible, infected and recovered people over time"></canvas></div>
+          <dl class="outcomes">
+            <div class="outcome"><dt>Peak day</dt><dd id="sir-peak-day">—</dd><dd class="outcome__note">when infections are highest</dd></div>
+            <div class="outcome"><dt>Peak infected</dt><dd id="sir-peak-load">—</dd><dd class="outcome__note" id="sir-peak-count">of the population at once</dd></div>
+            <div class="outcome"><dt>Ever infected</dt><dd id="sir-attack-rate">—</dd><dd class="outcome__note">total attack rate</dd></div>
+            <div class="outcome"><dt>R after action</dt><dd id="sir-effective-r0">—</dd><dd class="outcome__note" id="sir-r-note">below 1 and the epidemic shrinks</dd></div>
+          </dl>
+          <div class="delta" id="sir-delta" hidden aria-live="polite"><svg class="icon" aria-hidden="true"><use href="#i-trending-up"/></svg><span></span></div>
+          <div class="loading-veil" hidden><svg class="spin" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COUNTRIES ============ -->
+  <section class="view" data-view="countries" id="view-countries" hidden aria-labelledby="title-countries">
+    <div class="wrap">
+      <header class="view-head">
+        <h1 class="view-title focus-target" id="title-countries" tabindex="-1">Countries</h1>
+        <p class="lede" id="countries-lede">Every country and territory in the dataset. Sort any column, filter by continent, or open a row for the full history.</p>
+      </header>
+
+      <div class="tbl-tools">
+        <div class="pills" id="tbl-filters" role="group" aria-label="Filter by continent">
+          <button class="pill" type="button" data-continent="all" aria-pressed="true">All</button>
+          <button class="pill" type="button" data-continent="Europe" aria-pressed="false">Europe</button>
+          <button class="pill" type="button" data-continent="Asia" aria-pressed="false">Asia</button>
+          <button class="pill" type="button" data-continent="North America" aria-pressed="false">North America</button>
+          <button class="pill" type="button" data-continent="South America" aria-pressed="false">South America</button>
+          <button class="pill" type="button" data-continent="Africa" aria-pressed="false">Africa</button>
+          <button class="pill" type="button" data-continent="Oceania" aria-pressed="false">Oceania</button>
+        </div>
+        <div class="search tbl-search" style="display:flex;gap:8px;align-items:center;">
+          <label class="search__field">
+            <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+            <input class="search__input" id="table-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="Filter this table" aria-label="Filter the table by country name">
+          </label>
+          <button class="btn btn--soft btn--sm" id="btn-export-csv" type="button" title="Download filtered table as CSV" style="white-space:nowrap;">
+            <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="tbl-wrap" id="tbl-wrap" tabindex="0" role="region" aria-label="Countries table, scrollable">
+        <table class="tbl" id="tbl">
+          <thead>
+            <tr>
+              <th scope="col"><span class="vh">Rank</span></th>
+              <th scope="col" data-sort="Country" aria-sort="none"><button type="button">Country<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+              <th scope="col" data-sort="Confirmed" aria-sort="descending"><button type="button">Confirmed<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+              <th scope="col" class="hide-sm" data-sort="Dead" aria-sort="none"><button type="button">Deaths<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+              <th scope="col" data-sort="Mortality" aria-sort="none"><button type="button">Fatality<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+              <th scope="col" class="hide-sm" data-sort="Cases per mln" aria-sort="none"><button type="button">Cases / million<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+              <th scope="col" class="hide-sm" data-sort="GDP per capita" aria-sort="none"><button type="button">GDP per capita<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-down"/></svg></button></th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-tbody"></tbody>
+        </table>
+      </div>
+      <p class="tbl-count" id="tbl-count" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- ============ VIRUS LAB ============ -->
+  <section class="view" data-view="lab" id="view-lab" hidden aria-labelledby="title-lab">
+    <div class="wrap stack" style="gap:clamp(40px,6vw,72px)">
+      <div>
+        <header class="view-head">
+          <h1 class="view-title focus-target" id="title-lab" tabindex="-1">Virus lab</h1>
+          <p class="lede">A 3D model of a coronavirus particle. Drag to rotate, scroll to zoom, and put a mask on it to see how a barrier stops droplets.</p>
+        </header>
+
+        <div class="lab">
+          <div class="lab__stage">
+            <div class="virion" id="lab-virion" role="img" aria-label="Interactive 3D coronavirus model"></div>
+            <div class="lab__tools">
+              <button class="btn" id="lab-mask" type="button" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-shield-check"/></svg><span>Mask: off</span></button>
+              <button class="btn" id="lab-pulse" type="button" aria-pressed="true"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg><span>Pulse: on</span></button>
+              <button class="btn" id="lab-mutate" type="button" data-keep><i class="swatch" id="lab-swatch"></i><span>Change colour</span></button>
+            </div>
+            <div class="lab__hint">Drag to rotate · Scroll to zoom</div>
+          </div>
+          <div class="anatomy" role="group" aria-label="Parts of the model. Select one to highlight it.">
+            <button class="part" type="button" data-part="mask" aria-pressed="false">
+              <span class="part__top"><i style="--c:var(--shield)"></i><strong>Mask filter layer</strong></span>
+              <p>Masks are made of electrostatically charged polypropylene. Respirators such as N95s filter at least 95% of airborne particles.</p>
+            </button>
+            <button class="part" type="button" data-part="spikes" aria-pressed="false">
+              <span class="part__top"><i style="--c:var(--signal)"></i><strong>Spike proteins</strong></span>
+              <p>This model has 68. Spikes bind to ACE2 receptors on human cells, and a physical barrier keeps them from reaching one.</p>
+            </button>
+            <button class="part" type="button" data-part="core" aria-pressed="false">
+              <span class="part__top"><i style="--c:var(--ink-3)"></i><strong>Lipid envelope</strong></span>
+              <p>A fragile fatty membrane. Soap and sanitizers with 70% or more ethanol break it apart, which is why handwashing works.</p>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section__head">
+          <div>
+            <h2 class="section-title">Stay protected</h2>
+            <p>Two characters with the habits that cut transmission.</p>
+          </div>
+          <button class="btn btn--ghost" id="btn-celebrate" type="button"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg>Celebrate public health</button>
+        </div>
+        <div class="squad">
+          <article class="hero-card">
+            <div class="hero-card__stage" style="--tint:var(--shield-soft)" data-tilt><img src="/static/img/spiky.webp" width="720" height="720" loading="lazy" alt="Dr. Spiky, a friendly cartoon coronavirus wearing a blue surgical mask and waving"></div>
+            <div>
+              <p class="role">Dr. Spiky, chief mask officer</p>
+              <h3>“I wear my surgical mask so you stay safe!”</h3>
+            </div>
+            <p>A snug mask covers both nose and mouth, which cuts the aerosols that spread the virus.</p>
+            <button class="btn btn--soft" type="button" data-cheer="Thanks, Dr. Spiky!"><svg class="icon" aria-hidden="true"><use href="#i-heart-pulse"/></svg>Thank Dr. Spiky</button>
+          </article>
+          <article class="hero-card">
+            <div class="hero-card__stage" style="--tint:var(--signal-soft)" data-tilt><img src="/static/img/shield.webp" width="720" height="720" loading="lazy" alt="Captain Shield-19, a colourful cartoon coronavirus in an N95 respirator holding hand sanitizer and a glowing shield"></div>
+            <div>
+              <p class="role">Captain Shield-19, sanitizer defender</p>
+              <h3>“Shields up! Sanitizer at the ready!”</h3>
+            </div>
+            <p>With an N95 respirator, clean hands and a protective barrier, Captain Shield blocks the routes the virus travels.</p>
+            <button class="btn btn--soft" type="button" data-cheer="Hands washed. Nicely done!"><svg class="icon" aria-hidden="true"><use href="#i-hand"/></svg>Clean hands protocol</button>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <a class="brand" href="#overview"><svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="8" fill="currentColor"/><circle cx="16" cy="16" r="10.6" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="1.6 4.06" stroke-dashoffset="0.8"/><circle cx="16" cy="16" r="13.5" fill="none" stroke="#ff4a2b" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0 7.068"/></svg><span class="brand__name">Pandemic Intelligence</span></a>
+        <p>An exploratory analysis of COVID-19 using open data, built by Archit Srivastava.</p>
+      </div>
+      <div>
+        <h2>Data</h2>
+        <ul>
+          <li><a href="https://github.com/CSSEGISandData/COVID-19" target="_blank" rel="noopener">JHU CSSE COVID-19 case data</a></li>
+          <li><a href="https://data.worldbank.org" target="_blank" rel="noopener">World Bank indicators</a></li>
+          <li><a href="https://datahub.io/JohnSnowLabs/country-and-continent-codes-list" target="_blank" rel="noopener">Country and continent codes</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Project</h2>
+        <ul>
+          <li><a href="/docs" target="_blank" rel="noopener">API documentation</a></li>
+          <li><a href="https://github.com" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot__fine">Figures are reported cases, not true infections, and testing varied widely between countries. Socioeconomic comparisons are ecological correlations and do not show cause and effect.</p>
+  </div>
+</footer>
+
+<!-- Country dossier -->
+<dialog class="dossier" id="dossier" aria-labelledby="dossier-name">
+  <div class="dossier__inner">
+    <div class="dossier__top">
+      <div>
+        <h2 class="dossier__name" id="dossier-name">Country</h2>
+        <p class="dossier__sub" id="dossier-sub"></p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn--soft btn--sm" type="button" id="dossier-export-btn" title="Download country history as CSV">
+          <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg> Export CSV
+        </button>
+        <button class="icon-btn" type="button" id="dossier-close" aria-label="Close"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+    </div>
+    <div id="dossier-body"></div>
+  </div>
+</dialog>
+
+<!-- Guide -->
+<button class="fab" id="guide-fab" type="button" aria-expanded="false" aria-controls="guide" aria-label="Open quick guide" data-new>
+  <svg class="icon" aria-hidden="true"><use href="#i-circle-help"/></svg>
+</button>
+<section class="guide" id="guide" role="dialog" aria-modal="false" aria-labelledby="guide-title" hidden>
+  <div class="guide__head">
+    <img src="/static/img/spiky-sm.webp" width="192" height="192" alt="" id="guide-mascot" title="Click for confetti">
+    <h2 id="guide-title">Quick guide</h2>
+    <button class="icon-btn" type="button" id="guide-close" aria-label="Close guide"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="guide__body">
+    <p class="guide__here" id="guide-here"></p>
+    <div>
+      <h3 class="guide__h">Four steps to get started</h3>
+      <ol>
+        <li><span><b>Read the Overview.</b> Check the headline numbers, then switch the wave chart between daily and cumulative, linear and log.</span></li>
+        <li><span><b>Spin the Map.</b> Drag the globe and select a bubble to see a country’s cases, deaths and fatality rate.</span></li>
+        <li><span><b>Compare countries.</b> Add a few and see whose curve rose first and flattened fastest.</span></li>
+        <li><span><b>Try the Simulator.</b> Move the sliders to see how timing and strength of action change the peak.</span></li>
+      </ol>
+    </div>
+    <div>
+      <h3 class="guide__h">Good to know</h3>
+      <ul>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-keyboard"/></svg><span>Press <kbd>/</kbd> from anywhere to jump to a country. <kbd>Esc</kbd> closes any panel.</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-hand"/></svg><span>Select any country name, row or bubble to open its full history.</span></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span>Figures are reported cases; the dataset runs from <span id="guide-range">January 2020</span>.</span></li>
+      </ul>
+    </div>
+    <div class="guide__tip"><span id="guide-tip">Wear your mask snugly over nose and mouth.</span><button class="btn btn--sm btn--soft" type="button" id="guide-tip-btn">Another tip</button></div>
+  </div>
+</section>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+</body>
+</html>

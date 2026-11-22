@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pandemic Intelligence OS | 3D Interactive & Epidemiological Command Center</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#00f2fe',
+              crimson: '#ff3366',
+              emerald: '#10b981',
+              dark: '#060913',
+              card: '#0d1324'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="bg-[#060913] text-slate-100 antialiased selection:bg-cyan-500 selection:text-black">
+
+  <!-- Top Navigation & Global Status Header -->
+  <header class="sticky top-0 z-40 bg-[#060913]/85 backdrop-blur-xl border-b border-white/10 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Logo & System Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-500 to-rose-500 p-0.5 shadow-lg shadow-cyan-500/25">
+          <div class="w-full h-full bg-[#090d1a] rounded-[14px] flex items-center justify-center">
+            <i class="fa-solid fa-head-side-mask text-xl text-cyan-400 animate-pulse"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg md:text-xl font-black tracking-wider text-holographic font-orbitron">
+              PANDEMIC INTELLIGENCE OS
+            </h1>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold border border-cyan-500/40">3D PRO</span>
+          </div>
+          <p id="archive-status-badge" class="text-[11px] text-slate-400 font-mono tracking-wider">
+            SURVEILLANCE ARCHIVE: 1,143 DAYS · 198 NATIONS · 676.5M CASES
+          </p>
+        </div>
+      </div>
+
+      <!-- Center Search & Country Quick Jump -->
+      <div class="relative w-full md:w-80">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+        <input 
+          id="global-country-search"
+          type="text" 
+          placeholder="Jump to country (e.g. US, India, Italy)..." 
+          class="w-full bg-slate-900/90 border border-slate-700/70 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition font-mono"
+        />
+      </div>
+
+      <!-- Action Utilities -->
+      <div class="flex items-center gap-3">
+        <button id="btn-sound-toggle" title="Toggle audio feedback" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition text-sm">
+          <i class="fa-solid fa-volume-high text-cyan-400"></i>
+        </button>
+
+        <a href="/docs" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold font-mono transition">
+          <i class="fa-solid fa-bolt text-[11px]"></i>
+          <span>Swagger API</span>
+        </a>
+
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-400 font-mono font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>SYSTEM ACTIVE</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Tab Bar -->
+    <div class="max-w-7xl mx-auto mt-3 pt-2.5 border-t border-white/5 flex items-center gap-2 overflow-x-auto scrollbar-none text-xs font-semibold">
+      <button data-target="section-overview" class="nav-tab active px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Global Overview</span>
+      </button>
+
+      <button data-target="section-3d" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-cube text-cyan-400"></i>
+        <span>3D Masked Corona Lab</span>
+      </button>
+
+      <button data-target="section-mascots" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-shield-virus text-rose-400"></i>
+        <span>Cartoon Mascot Gallery</span>
+      </button>
+
+      <button data-target="section-map" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-earth-americas"></i>
+        <span>Geospatial Radar</span>
+      </button>
+
+      <button data-target="section-compare" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-code-compare"></i>
+        <span>Country Bench & T0</span>
+      </button>
+
+      <button data-target="section-socio" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-dna"></i>
+        <span>World Bank Matrix</span>
+      </button>
+
+      <button data-target="section-simulator" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-sliders"></i>
+        <span>SIR Simulator</span>
+      </button>
+
+      <button data-target="section-table" class="nav-tab px-3.5 py-2 rounded-xl border border-transparent transition flex items-center gap-2 text-slate-300 hover:text-cyan-400 font-syne">
+        <i class="fa-solid fa-table-list"></i>
+        <span>Global Dossier</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content View Area -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 py-6 space-y-6">
+
+    <!-- VIEW 1: GLOBAL OVERVIEW -->
+    <section id="section-overview" class="view-section space-y-6">
+      
+      <!-- Hero KPI Matrix -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Total Confirmed -->
+        <div class="glass-card p-5 relative overflow-hidden group">
+          <div class="absolute right-3 top-3 text-cyan-500/20 group-hover:text-cyan-500/30 transition text-4xl">
+            <i class="fa-solid fa-lungs-virus"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Total Confirmed Cases</span>
+          <div id="kpi-total-confirmed" class="font-mono text-3xl font-extrabold text-cyan-400 mt-2">...</div>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
+            <span class="text-cyan-400 font-bold">198</span> jurisdictions worldwide
+          </div>
+        </div>
+
+        <!-- Total Fatalities -->
+        <div class="glass-card p-5 relative overflow-hidden group">
+          <div class="absolute right-3 top-3 text-rose-500/20 group-hover:text-rose-500/30 transition text-4xl">
+            <i class="fa-solid fa-cross"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Total Fatalities</span>
+          <div id="kpi-total-deaths" class="font-mono text-3xl font-extrabold text-rose-400 mt-2">...</div>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
+            Verified JHU CSSE time series
+          </div>
+        </div>
+
+        <!-- Global CFR -->
+        <div class="glass-card p-5 relative overflow-hidden group">
+          <div class="absolute right-3 top-3 text-amber-500/20 group-hover:text-amber-500/30 transition text-4xl">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Case Fatality Rate (CFR)</span>
+          <div id="kpi-mortality-rate" class="font-mono text-3xl font-extrabold text-amber-400 mt-2">...</div>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
+            Global mortality benchmark
+          </div>
+        </div>
+
+        <!-- Historical Peak Day -->
+        <div class="glass-card p-5 relative overflow-hidden group">
+          <div class="absolute right-3 top-3 text-purple-500/20 group-hover:text-purple-500/30 transition text-4xl">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Historic Single-Day Peak</span>
+          <div id="kpi-peak-date" class="font-mono text-2xl font-extrabold text-purple-400 mt-2">...</div>
+          <div id="kpi-peak-cases" class="mt-2 text-[11px] text-purple-300 font-mono font-medium">...</div>
+        </div>
+
+      </div>
+
+      <!-- Global Wave Timeline Chart -->
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-chart-area text-cyan-400"></i>
+              <span>Global Transmission Waves & Epidemic Dynamics</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">1,143 consecutive daily observations with 7-day smoothing trend</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <select id="timeline-mode-toggle" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono">
+              <option value="daily">Daily Waves (7-Day Smoothed)</option>
+              <option value="cumulative">Cumulative Growth</option>
+            </select>
+
+            <select id="timeline-scale-toggle" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono">
+              <option value="linear">Linear Scale</option>
+              <option value="log">Logarithmic Scale</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="h-80 w-full relative">
+          <canvas id="globalTimelineChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Continental Breakdown & Top Epicenters -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="glass-panel p-6 space-y-4">
+          <div class="border-b border-white/5 pb-3">
+            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-globe text-blue-400"></i>
+              <span>Continental Case Distribution</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Proportional burden across global regions</p>
+          </div>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="continentDonutChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 space-y-4">
+          <div class="border-b border-white/5 pb-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2 font-syne">
+                <i class="fa-solid fa-fire text-rose-400"></i>
+                <span>Highest Cumulative Burden Epicenters</span>
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Top nations by verified case totals</p>
+            </div>
+            <span class="text-[10px] text-slate-500 font-mono">CLICK TO INSPECT</span>
+          </div>
+
+          <div id="top-epicenters-list" class="space-y-1.5">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: 3D INTERACTIVE CORONAVIRUS & MASK BIO-LAB -->
+    <section id="section-3d" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-black text-white font-orbitron tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-cube text-cyan-400"></i>
+                <span>3D INTERACTIVE CORONAVIRUS MORPHOLOGY</span>
+              </h2>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold">WebGL</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+              Drag with mouse to rotate in 3D · Scroll wheel to zoom · Procedural S-protein spikes with surgical face mask & aerosol particles
+            </p>
+          </div>
+
+          <!-- 3D Controls -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-toggle-mask-3d" onclick="toggleThreeMask()" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-mono font-semibold transition">
+              <i class="fa-solid fa-head-side-mask"></i> 3D Mask: ON
+            </button>
+            <button id="btn-toggle-pulse-3d" onclick="toggleThreePulse()" class="px-3.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-mono font-semibold transition">
+              <i class="fa-solid fa-heart-pulse"></i> Pulse: ACTIVE
+            </button>
+            <button onclick="mutateThreeColor()" class="px-3.5 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-mono font-semibold transition">
+              <i class="fa-solid fa-palette"></i> Mutate Color
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D WebGL Canvas Container -->
+        <div id="three-canvas-container">
+          <!-- Three.js Canvas injected dynamically -->
+        </div>
+
+        <!-- Bio-Structural Breakdown Footer -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-white/5 space-y-1">
+            <div class="flex items-center gap-2 text-cyan-400 text-xs font-mono font-bold">
+              <i class="fa-solid fa-shield"></i>
+              <span>Surgical Mask Filter Layer</span>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              Electrostatic polypropylene melt-blown nonwoven fabric blocks &gt;95% of airborne respiratory droplets.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-white/5 space-y-1">
+            <div class="flex items-center gap-2 text-rose-400 text-xs font-mono font-bold">
+              <i class="fa-solid fa-dna"></i>
+              <span>68 S-Protein Glycoproteins</span>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              Spike trimers bind with high affinity to human ACE2 cellular receptors; masks physical barrier obstructs viral binding.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-white/5 space-y-1">
+            <div class="flex items-center gap-2 text-purple-400 text-xs font-mono font-bold">
+              <i class="fa-solid fa-circle-dot"></i>
+              <span>Lipid Envelope Core</span>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              Fragile lipid bilayer vulnerable to surfactants (soap) and 70%+ ethanol sanitizers, neutralizing infectivity in seconds.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 3: CARTOON MASCOT GALLERY & BIO-SAFETY LAB -->
+    <section id="section-mascots" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 space-y-6">
+        <div class="border-b border-white/5 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-black text-white font-orbitron tracking-wider flex items-center gap-2.5">
+              <i class="fa-solid fa-mask-face text-rose-400"></i>
+              <span>CARTOON CORONA BIO-SAFETY SQUAD</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Friendly 3D Pixar-style animated mascots demonstrating protective mask wearing, sanitization, and immunity defense
+            </p>
+          </div>
+
+          <button onclick="triggerMascotCheer()" class="btn-cyber px-4 py-2 rounded-xl text-xs font-bold font-mono flex items-center gap-2 self-start md:self-auto">
+            <i class="fa-solid fa-sparkles text-amber-400"></i>
+            <span>Celebrate Public Health! 🎉</span>
+          </button>
+        </div>
+
+        <!-- Mascot Showcase Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Character 1: Dr. Spiky -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col items-center text-center space-y-4 group">
+            <div class="relative w-64 h-64 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-2xl shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
+              <img 
+                src="/static/img/cartoon_corona_mask.png" 
+                alt="Dr. Spiky Cartoon Corona with Mask" 
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute bottom-2 left-2 right-2 bg-slate-900/90 backdrop-blur-md py-1.5 px-3 rounded-xl border border-cyan-500/30">
+                <span class="text-xs font-mono font-bold text-cyan-300">DR. SPIKY · CHIEF MASK OFFICER</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5 max-w-sm">
+              <h3 class="text-lg font-bold text-white font-syne">"I wear my surgical mask so you stay safe!"</h3>
+              <p class="text-xs text-slate-400">
+                Dr. Spiky reminds everyone that high-filtration masks cover both the nose and mouth snugly to suppress aerosol dissemination.
+              </p>
+            </div>
+
+            <button onclick="triggerMascotCheer()" class="px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold transition">
+              <i class="fa-solid fa-thumbs-up"></i> Thank Dr. Spiky!
+            </button>
+          </div>
+
+          <!-- Character 2: Captain Shield-19 -->
+          <div class="glass-card p-6 rounded-2xl flex flex-col items-center text-center space-y-4 group">
+            <div class="relative w-64 h-64 rounded-2xl overflow-hidden border border-rose-500/30 shadow-2xl shadow-rose-500/20 group-hover:scale-105 transition-transform duration-300">
+              <img 
+                src="/static/img/cartoon_corona_shield.png" 
+                alt="Captain Shield-19 Cartoon Corona" 
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute bottom-2 left-2 right-2 bg-slate-900/90 backdrop-blur-md py-1.5 px-3 rounded-xl border border-rose-500/30">
+                <span class="text-xs font-mono font-bold text-rose-300">CAPTAIN SHIELD-19 · SANITIZER DEFENDER</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5 max-w-sm">
+              <h3 class="text-lg font-bold text-white font-syne">"Shields Up! Sanitizer at the Ready!"</h3>
+              <p class="text-xs text-slate-400">
+                Armed with an N95 medical respirator, glowing protection barrier, and disinfectant, Captain Shield blocks transmission pathways.
+              </p>
+            </div>
+
+            <button onclick="triggerMascotCheer()" class="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 text-xs font-mono font-bold transition">
+              <i class="fa-solid fa-pump-soap"></i> Clean Hands Protocol!
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 4: GEOSPATIAL RADAR (LEAFLET MAP) -->
+    <section id="section-map" class="view-section hidden space-y-4">
+      <div class="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+            <i class="fa-solid fa-satellite-dish text-cyan-400"></i>
+            <span>Geospatial Epidemiological Radar</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Interactive spatial bubbles sized by cumulative caseload and colored by case fatality severity</p>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-mono">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span>
+            <span class="text-slate-300">&lt; 1.5% CFR</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+            <span class="text-slate-300">1.5% - 3.0% CFR</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+            <span class="text-slate-300">&gt; 3.0% CFR</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-panel p-2 overflow-hidden shadow-2xl relative" style="height: 600px;">
+        <div id="world-map"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: COUNTRY BENCH & T0 ALIGNMENT -->
+    <section id="section-compare" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-code-compare text-cyan-400"></i>
+              <span>Multi-Nation Trajectory Benchmarking</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Overlay 7-day smoothed wave profiles across selected countries</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="compare-country-select" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono">
+              <option value="">Select country to add...</option>
+            </select>
+            <button onclick="addCompareCountry()" class="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-semibold font-mono transition">
+              + Add
+            </button>
+          </div>
+        </div>
+
+        <div id="compare-chips-container" class="flex flex-wrap gap-2"></div>
+
+        <div class="h-80 w-full relative">
+          <canvas id="compareCountriesChart"></canvas>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 space-y-4">
+        <div class="border-b border-white/5 pb-4">
+          <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+            <i class="fa-solid fa-stopwatch text-purple-400"></i>
+            <span>T0 Alignment: Curve Flattening Dynamics</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Normalized to <strong>Day 0 = 100th confirmed case</strong> on a logarithmic scale. Highlights how rapidly countries suppressed early exponential growth.
+          </p>
+        </div>
+
+        <div class="h-80 w-full relative">
+          <canvas id="t0Chart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 6: WORLD BANK SOCIOECONOMIC MATRIX -->
+    <section id="section-socio" class="view-section hidden space-y-6">
+      
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-dna text-cyan-400"></i>
+              <span>Socioeconomic Correlation Engine</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Empirical linear regression linking World Bank indicators with pandemic outcomes</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-mono">X-Axis:</span>
+              <select id="socio-x-indicator" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1 text-xs text-slate-200 font-mono">
+                <option value="Rural population %">Rural population %</option>
+                <option value="GDP per capita">GDP per capita</option>
+                <option value="GDP Healthcare %">GDP Healthcare %</option>
+                <option value="Life expectancy">Life expectancy</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-mono">Y-Axis:</span>
+              <select id="socio-y-indicator" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1 text-xs text-slate-200 font-mono">
+                <option value="Cases per mln">Cases per million</option>
+                <option value="Dead per mln">Deaths per million</option>
+                <option value="Mortality %">Mortality Rate %</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/60 p-3.5 rounded-xl border border-white/5 text-xs font-mono">
+          <div>
+            <span class="text-slate-400">Pearson Correlation:</span>
+            <span id="socio-r-val" class="text-cyan-400 font-bold ml-1.5">r = ...</span>
+          </div>
+          <div>
+            <span class="text-slate-400">Coefficient of Determination:</span>
+            <span id="socio-r2-val" class="text-amber-400 font-bold ml-1.5">R² = ...</span>
+          </div>
+          <div>
+            <span class="text-slate-400">Statistical Significance:</span>
+            <span id="socio-p-val" class="text-emerald-400 font-bold ml-1.5">p = ...</span>
+          </div>
+        </div>
+
+        <div class="h-96 w-full relative">
+          <canvas id="socioeconomicScatterChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 7: SIR EPIDEMIC SIMULATOR -->
+    <section id="section-simulator" class="view-section hidden space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="glass-panel p-6 space-y-5 lg:col-span-1">
+          <div class="border-b border-white/5 pb-3">
+            <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-sliders text-purple-400"></i>
+              <span>Epidemic Parameter Sandbox</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Solve compartmental differential equations with mitigation dynamics</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 font-medium">Basic Reproduction No. ($R_0$)</span>
+              <span id="sir-r0-val" class="font-mono text-cyan-400 font-bold">2.5</span>
+            </div>
+            <input id="sir-r0" type="range" min="1.0" max="6.0" step="0.1" value="2.5" />
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 font-medium">Infectious Duration ($\gamma^{-1}$)</span>
+              <span id="sir-infectious-days-val" class="font-mono text-cyan-400 font-bold">10</span>
+            </div>
+            <input id="sir-infectious-days" type="range" min="3" max="21" step="1" value="10" />
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 font-medium">Intervention Start (Day)</span>
+              <span id="sir-lockdown-day-val" class="font-mono text-cyan-400 font-bold">45</span>
+            </div>
+            <input id="sir-lockdown-day" type="range" min="10" max="120" step="5" value="45" />
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 font-medium">Intervention Efficacy ($\Delta \beta$)</span>
+              <span id="sir-reduction-val" class="font-mono text-cyan-400 font-bold">50%</span>
+            </div>
+            <input id="sir-reduction" type="range" min="0" max="90" step="5" value="50" />
+          </div>
+
+          <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5 space-y-2 text-xs font-mono">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Peak Infection Day:</span>
+              <span id="sir-peak-day" class="text-rose-400 font-bold">Day 0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Peak Burden %:</span>
+              <span id="sir-peak-load" class="text-amber-400 font-bold">0%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Total Attack Rate:</span>
+              <span id="sir-attack-rate" class="text-cyan-400 font-bold">0%</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Effective $R_t$ Post-Action:</span>
+              <span id="sir-effective-r0" class="text-emerald-400 font-bold">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-6 space-y-4 lg:col-span-2">
+          <div class="border-b border-white/5 pb-3">
+            <h3 class="text-sm font-bold text-slate-200 font-syne">Compartmental S-I-R Population Curves</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Susceptible (blue), Active Infectious (crimson), Immune/Recovered (emerald)</p>
+          </div>
+          <div class="h-96 w-full relative">
+            <canvas id="sirSimulationChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- VIEW 8: GLOBAL DOSSIER GRID -->
+    <section id="section-table" class="view-section hidden space-y-4">
+      
+      <div class="glass-panel p-5 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2 font-syne">
+              <i class="fa-solid fa-table-list text-cyan-400"></i>
+              <span>National Intelligence Surveillance Grid</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Comprehensive surveillance dataset covering 198 jurisdictions</p>
+          </div>
+
+          <div class="w-full md:w-64">
+            <input 
+              id="table-search-input"
+              type="text" 
+              placeholder="Search jurisdiction..." 
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"
+            />
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+          <button data-continent="all" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">All</button>
+          <button data-continent="Europe" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Europe</button>
+          <button data-continent="Asia" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Asia</button>
+          <button data-continent="North America" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">North America</button>
+          <button data-continent="South America" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">South America</button>
+          <button data-continent="Africa" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Africa</button>
+          <button data-continent="Oceania" class="continent-filter-pill px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">Oceania</button>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-white/5">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-900/90 text-[11px] text-slate-400 uppercase tracking-wider font-mono border-b border-white/10">
+                <th class="py-3 px-4 w-12">#</th>
+                <th class="py-3 px-4">Jurisdiction</th>
+                <th class="py-3 px-4 text-right">Confirmed</th>
+                <th class="py-3 px-4 text-right">Fatalities</th>
+                <th class="py-3 px-4 text-right">CFR</th>
+                <th class="py-3 px-4 text-right">Cases / Mln</th>
+                <th class="py-3 px-4 text-right">GDP Per Cap</th>
+                <th class="py-3 px-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FLOATING CARTOON MASCOT COMPANION (DR. SPIKY) -->
+  <div id="floating-mascot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-auto">
+    <!-- Speech Bubble -->
+    <div id="mascot-speech" class="speech-bubble max-w-xs mb-2 transition-all duration-300">
+      <p id="mascot-speech-text" class="text-xs text-cyan-200 font-semibold font-syne">
+        "Wear your mask snugly over nose & mouth! 😷 (Click me for tips & confetti!)"
+      </p>
+    </div>
+
+    <!-- Clickable Animated Mascot Avatar -->
+    <div 
+      id="floating-mascot" 
+      class="mascot-float-anim cursor-pointer relative group p-1 rounded-full bg-gradient-to-tr from-cyan-400 via-blue-500 to-rose-500 shadow-2xl shadow-cyan-500/40 hover:scale-110 transition-transform duration-300"
+      title="Click Dr. Spiky for immunity tips and celebration!"
+    >
+      <div class="w-16 h-16 rounded-full overflow-hidden bg-[#090d1a] border-2 border-white/20 flex items-center justify-center">
+        <img 
+          src="/static/img/cartoon_corona_mask.png" 
+          alt="Dr. Spiky Cartoon Avatar" 
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <span class="absolute -top-1 -right-1 flex h-4 w-4">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-4 w-4 bg-cyan-500 text-[9px] text-black font-extrabold items-center justify-center">!</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- COUNTRY DOSSIER SLIDE-OVER / MODAL -->
+  <div id="country-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl space-y-4 p-6">
+      
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <h3 id="modal-country-name" class="text-xl font-extrabold text-white font-syne">...</h3>
+          <p id="modal-country-sub" class="text-xs text-slate-400 font-mono mt-0.5">...</p>
+        </div>
+        <button onclick="closeCountryModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+          <span class="text-[10px] text-slate-400 uppercase font-mono">Total Confirmed</span>
+          <p id="modal-confirmed" class="font-mono text-base font-bold text-cyan-400">...</p>
+          <span id="modal-confirmed-rank" class="text-[10px] text-slate-500 font-mono">...</span>
+        </div>
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+          <span class="text-[10px] text-slate-400 uppercase font-mono">Total Fatalities</span>
+          <p id="modal-deaths" class="font-mono text-base font-bold text-rose-400">...</p>
+          <span id="modal-deaths-rank" class="text-[10px] text-slate-500 font-mono">...</span>
+        </div>
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+          <span class="text-[10px] text-slate-400 uppercase font-mono">Case Fatality Rate</span>
+          <p id="modal-cfr" class="font-mono text-base font-bold text-amber-400">...</p>
+          <span id="modal-cfr-rank" class="text-[10px] text-slate-500 font-mono">...</span>
+        </div>
+        <div class="bg-slate-800/50 p-3 rounded-xl border border-white/5">
+          <span class="text-[10px] text-slate-400 uppercase font-mono">Cases / Million</span>
+          <p id="modal-cases-per-mln" class="font-mono text-base font-bold text-emerald-400">...</p>
+          <span class="text-[10px] text-slate-500 font-mono">Population scaled</span>
+        </div>
+      </div>
+
+      <div class="bg-slate-800/30 p-3 rounded-xl border border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div>
+          <span class="text-slate-400 text-[10px] font-mono">GDP Per Capita:</span>
+          <p id="modal-gdp" class="font-mono font-semibold text-slate-200">...</p>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] font-mono">Healthcare Exp %:</span>
+          <p id="modal-health-gdp" class="font-mono font-semibold text-slate-200">...</p>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] font-mono">Life Expectancy:</span>
+          <p id="modal-life-exp" class="font-mono font-semibold text-slate-200">...</p>
+        </div>
+        <div>
+          <span class="text-slate-400 text-[10px] font-mono">Rural Population %:</span>
+          <p id="modal-rural-pct" class="font-mono font-semibold text-slate-200">...</p>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <span class="text-xs font-semibold text-slate-300 font-syne">National Historical Trajectory</span>
+        <div class="h-56 w-full relative">
+          <canvas id="modalCountryTimelineChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CDN Script Dependencies -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Engine -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
